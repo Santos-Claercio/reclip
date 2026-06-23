@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ReClip — Free Media Downloader</title>
+  <title>ReClip Master — Free Media Downloader</title>
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -18,12 +18,11 @@
       --card-border: #e2ded6;
       --success: #2d8a4e;
       --error: #c43d3d;
+      --warning: #d4a017;
       --radius: 14px;
       --shimmer: linear-gradient(90deg, #ebe8e2 25%, #f0ede7 50%, #ebe8e2 75%);
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       font-family: 'DM Mono', monospace;
       background: var(--bg);
@@ -31,7 +30,6 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-
     body::after {
       content: '';
       position: fixed;
@@ -41,13 +39,7 @@
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
       background-size: 128px;
     }
-
-    .page {
-      max-width: 620px;
-      margin: 0 auto;
-      padding: 60px 24px 80px;
-    }
-
+    .page { max-width: 620px; margin: 0 auto; padding: 60px 24px 80px; }
     .brand { margin-bottom: 48px; }
     .brand h1 {
       font-family: 'Instrument Serif', serif;
@@ -141,16 +133,21 @@
     .fetch-btn:active { transform: scale(0.98); }
     .fetch-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-    /* Cards */
-    .cards { margin-top: 24px; }
+    .cards { margin-top: 24px; width: 100%; }
+    .cards.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .cards.grid .card { margin-bottom: 0; min-width: 0; }
+    .cards.grid .card-header { flex-wrap: wrap; gap: 8px; }
+    .cards.grid .card-thumb { width: 100%; min-width: 0; height: auto; aspect-ratio: 3/2; }
+    .cards.grid .card-body { flex-basis: 100%; }
+    .cards.grid .card-title { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .cards.grid .card-actions { margin-top: -4px; }
+    @media (max-width: 500px) { .cards.grid { grid-template-columns: 1fr; } }
 
     .card {
-      display: flex;
-      gap: 14px;
       border: 1.5px solid var(--card-border);
       border-radius: var(--radius);
       background: var(--card);
-      padding: 14px;
+      padding: 16px;
       margin-bottom: 10px;
       animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -159,10 +156,15 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    .card-header {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
     .card-thumb {
-      width: 120px;
-      min-width: 120px;
-      height: 80px;
+      width: 90px;
+      min-width: 90px;
+      height: 60px;
       border-radius: 8px;
       overflow: hidden;
       background: var(--card-border);
@@ -175,7 +177,6 @@
       object-fit: cover;
       display: block;
     }
-    /* No-thumbnail icon */
     .card-thumb .no-thumb {
       width: 100%;
       height: 100%;
@@ -184,18 +185,119 @@
       justify-content: center;
       color: var(--muted);
     }
-    .card-thumb .no-thumb svg {
-      width: 28px;
-      height: 28px;
-      opacity: 0.5;
-    }
-
-    /* Shimmer skeleton for loading state */
+    .card-thumb .no-thumb svg { width: 24px; height: 24px; opacity: 0.5; }
     .card-thumb.loading {
       background: var(--shimmer);
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;
     }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .card-body { flex: 1; min-width: 0; }
+    .card-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 1rem;
+      line-height: 1.3;
+      color: var(--fg);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .card-meta {
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .card-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 7px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .card-btn:hover { filter: brightness(1.1); }
+    .card-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: none; }
+    .card-btn.primary { background: var(--fg); color: var(--bg); }
+    .card-btn.success { background: var(--success); color: #fff; }
+    .card-btn.danger { background: var(--error); color: #fff; }
+    .card-btn.warning { background: var(--warning); color: #fff; }
+    .card-btn.outline {
+      background: transparent;
+      border: 1.5px solid var(--card-border);
+      color: var(--muted);
+    }
+    .card-btn.outline:hover { border-color: var(--fg); color: var(--fg); }
+
+    .card-status {
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+    .card-status.downloading { color: var(--accent); }
+    .card-status.done { color: var(--success); }
+    .card-status.error { color: var(--error); }
+    .card-status.paused { color: var(--warning); }
+    .card-status.cancelled { color: var(--muted); }
+
+    .card-error-msg {
+      font-size: 0.72rem;
+      color: var(--error);
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    .card-status-msg {
+      font-size: 0.68rem;
+      color: var(--success);
+      margin-top: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    .progress-wrap {
+      margin-top: 8px;
+    }
+    .progress-bar-bg {
+      width: 100%;
+      height: 6px;
+      background: #e8e5de;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+    .progress-bar-fill.paused { background: var(--warning); }
+    .progress-bar-fill.done { background: var(--success); }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-top: 4px;
+      letter-spacing: 0.02em;
+    }
+
     .skeleton-line {
       height: 12px;
       border-radius: 4px;
@@ -206,69 +308,6 @@
     }
     .skeleton-line.short { width: 40%; height: 10px; }
     .skeleton-line.medium { width: 75%; }
-    @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    .card-body {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .card-title {
-      font-family: 'Instrument Serif', serif;
-      font-size: 1rem;
-      line-height: 1.3;
-      color: var(--fg);
-      margin-bottom: 2px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .card-meta {
-      font-size: 0.68rem;
-      color: var(--muted);
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .card-actions {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .card-dl-btn {
-      padding: 6px 14px;
-      border: none;
-      border-radius: 7px;
-      background: var(--fg);
-      color: var(--bg);
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-    }
-    .card-dl-btn:hover { background: #2d2d2a; }
-    .card-dl-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .card-dl-btn.done { background: var(--success); color: #fff; }
-    .card-dl-btn.error { background: var(--error); color: #fff; }
-
-    .card-status {
-      font-size: 0.68rem;
-      color: var(--muted);
-    }
-    .card-status.downloading { color: var(--accent); }
-    .card-status.done { color: var(--success); }
-    .card-status.error { color: var(--error); }
 
     .q-chip {
       padding: 4px 10px;
@@ -288,38 +327,6 @@
     }
     .q-chip:hover:not(.active) { border-color: var(--muted); }
 
-    /* Error card */
-    .card.card-error {
-      border-color: rgba(196, 61, 61, 0.2);
-      background: rgba(196, 61, 61, 0.03);
-    }
-    .card-error-icon {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(196, 61, 61, 0.08);
-      color: var(--error);
-    }
-    .card-error-icon svg {
-      width: 24px;
-      height: 24px;
-    }
-    .card-error-msg {
-      font-size: 0.72rem;
-      color: var(--error);
-      margin-top: 2px;
-      line-height: 1.4;
-    }
-    .card-error-url {
-      font-size: 0.65rem;
-      color: var(--muted);
-      word-break: break-all;
-      margin-top: 4px;
-    }
-
-    /* Download all bar */
     .dl-all-bar {
       display: flex;
       gap: 10px;
@@ -364,17 +371,9 @@
       line-height: 1.8;
     }
 
-    /* Mobile */
     @media (max-width: 500px) {
       .brand h1 { font-size: 3rem; }
       .page { padding: 40px 16px 60px; }
-      .card { flex-direction: column; gap: 10px; }
-      .card-thumb {
-        width: 100%;
-        min-width: unset;
-        height: 160px;
-      }
-      .card-title { white-space: normal; }
       .controls { flex-wrap: wrap; }
       .fetch-btn { width: 100%; }
     }
@@ -383,24 +382,30 @@
 <body>
   <div class="page">
     <div class="brand">
-      <h1>Re<em>Clip</em></h1>
-      <p>Free media downloader</p>
+      <h1>Re<em>Clip</em> <em>Master</em></h1>
+      <p id="brandSubtitle" data-i18n="brand_subtitle">Free media downloader</p>
     </div>
 
     <textarea id="urls" placeholder="Paste one or more URLs..." rows="2"></textarea>
-    <p class="hint">Multiple links? Separate with spaces, commas, or newlines.</p>
+    <p class="hint" id="hintText">Multiple links? Separate with spaces, commas, or newlines.</p>
 
     <div class="controls">
       <div class="pill-group">
         <button class="pill active" data-format="video" onclick="setFormat(this)">MP4</button>
         <button class="pill" data-format="audio" onclick="setFormat(this)">MP3</button>
+        <button class="pill" id="viewBtn" onclick="toggleView()" title="Toggle view">☰</button>
       </div>
       <button class="fetch-btn" id="goBtn" onclick="go()">Fetch</button>
+      <div class="pill-group">
+        <button class="pill lang-pill active" data-lang="pt" onclick="setLanguage('pt')">PT</button>
+        <button class="pill lang-pill" data-lang="en" onclick="setLanguage('en')">EN</button>
+        <button class="pill lang-pill" data-lang="es" onclick="setLanguage('es')">ES</button>
+      </div>
     </div>
 
     <div id="cards" class="cards"></div>
 
-    <div class="footer">
+    <div class="footer" id="footerText">
       YouTube &middot; TikTok &middot; Instagram &middot; Twitter/X &middot; Reddit &middot; Facebook<br>
       Vimeo &middot; Twitch &middot; Dailymotion &middot; SoundCloud &middot; Loom &middot; Streamable<br>
       Pinterest &middot; Tumblr &middot; Threads &middot; LinkedIn &middot; 1000+ more
@@ -410,6 +415,158 @@
   <script>
     let currentFormat = 'video';
     let cardData = [];
+    let pollTimers = {};
+    let nextId = 0;
+    let viewMode = 'grid';
+    let currentLang = 'pt';
+
+    const translations = {
+      pt: {
+        brand_subtitle: 'Downloader de mídia gratuito',
+        placeholder: 'Cole uma ou mais URLs...',
+        hint: 'Vários links? Separe com espaços, vírgulas ou quebras de linha.',
+        fetch: 'Buscar',
+        loading: 'Carregando...',
+        starting: 'Iniciando...',
+        download_all: 'Baixar Todos',
+        download: 'Baixar',
+        queued: 'Na fila',
+        downloading: 'Baixando',
+        paused: 'Pausado',
+        cancelled: 'Cancelado',
+        complete: 'Concluído',
+        save: 'Salvar',
+        restart: 'Reiniciar',
+        retry: 'Tentar Novamente',
+        pause: 'Pausar',
+        cancel: 'Cancelar',
+        resume: 'Continuar',
+        untitled: 'Sem título',
+        fetch_error: 'Não foi possível buscar o vídeo',
+        remove_card: 'Remover card',
+        toggle_view: 'Alternar visualização',
+        download_finished: 'Download finalizado',
+        footer: 'YouTube · TikTok · Instagram · Twitter/X · Reddit · Facebook<br>Vimeo · Twitch · Dailymotion · SoundCloud · Loom · Streamable<br>Pinterest · Tumblr · Threads · LinkedIn · 1000+ mais',
+        err_no_video: 'Nenhum vídeo encontrado nesta página — verifique se o link está correto',
+        err_unsupported: 'Esta URL não é suportada',
+        err_unavailable: 'O vídeo está indisponível ou é privado',
+        err_private: 'Este vídeo é privado',
+        err_403: 'Acesso negado pela plataforma',
+        err_404: 'Vídeo não encontrado',
+        err_copyright: 'Vídeo bloqueado devido a direitos autorais',
+        err_geo: 'Vídeo não disponível na sua região',
+        err_timeout: 'Tempo limite excedido — tente novamente',
+        err_network: 'Erro de rede — verifique sua conexão',
+        err_unknown: 'Erro desconhecido',
+        err_failed_download: 'Falha ao baixar arquivo',
+        err_failed_save: 'Falha ao salvar arquivo',
+      },
+      en: {
+        brand_subtitle: 'Free media downloader',
+        placeholder: 'Paste one or more URLs...',
+        hint: 'Multiple links? Separate with spaces, commas, or newlines.',
+        fetch: 'Fetch',
+        loading: 'Loading...',
+        starting: 'Starting...',
+        download_all: 'Download All',
+        download: 'Download',
+        queued: 'Queued',
+        downloading: 'Downloading',
+        paused: 'Paused',
+        cancelled: 'Cancelled',
+        complete: 'Complete',
+        save: 'Save',
+        restart: 'Restart',
+        retry: 'Retry',
+        pause: 'Pause',
+        cancel: 'Cancel',
+        resume: 'Resume',
+        untitled: 'Untitled',
+        fetch_error: 'Could not fetch video',
+        remove_card: 'Remove card',
+        toggle_view: 'Toggle view',
+        download_finished: 'Download finished',
+        footer: 'YouTube · TikTok · Instagram · Twitter/X · Reddit · Facebook<br>Vimeo · Twitch · Dailymotion · SoundCloud · Loom · Streamable<br>Pinterest · Tumblr · Threads · LinkedIn · 1000+ more',
+        err_no_video: 'No video found in this page — check if the link is correct',
+        err_unsupported: 'This URL is not supported',
+        err_unavailable: 'Video is unavailable or private',
+        err_private: 'This video is private',
+        err_403: 'Access denied by the platform',
+        err_404: 'Video not found',
+        err_copyright: 'Video blocked due to copyright',
+        err_geo: 'Video not available in your region',
+        err_timeout: 'Request timed out — try again',
+        err_network: 'Network error — check your connection',
+        err_unknown: 'Unknown error',
+        err_failed_download: 'Failed to download file',
+        err_failed_save: 'Failed to save file',
+      },
+      es: {
+        brand_subtitle: 'Descargador de medios gratuito',
+        placeholder: 'Pega una o más URLs...',
+        hint: '¿Varios enlaces? Sepáralos con espacios, comas o saltos de línea.',
+        fetch: 'Buscar',
+        loading: 'Cargando...',
+        starting: 'Iniciando...',
+        download_all: 'Descargar Todo',
+        download: 'Descargar',
+        queued: 'En cola',
+        downloading: 'Descargando',
+        paused: 'Pausado',
+        cancelled: 'Cancelado',
+        complete: 'Completado',
+        save: 'Guardar',
+        restart: 'Reiniciar',
+        retry: 'Reintentar',
+        pause: 'Pausar',
+        cancel: 'Cancelar',
+        resume: 'Reanudar',
+        untitled: 'Sin título',
+        fetch_error: 'No se pudo obtener el video',
+        remove_card: 'Eliminar tarjeta',
+        toggle_view: 'Alternar vista',
+        download_finished: 'Descarga finalizada',
+        footer: 'YouTube · TikTok · Instagram · Twitter/X · Reddit · Facebook<br>Vimeo · Twitch · Dailymotion · SoundCloud · Loom · Streamable<br>Pinterest · Tumblr · Threads · LinkedIn · 1000+ más',
+        err_no_video: 'No se encontró ningún video en esta página — verifica si el enlace es correcto',
+        err_unsupported: 'Esta URL no es compatible',
+        err_unavailable: 'El video no está disponible o es privado',
+        err_private: 'Este video es privado',
+        err_403: 'Acceso denegado por la plataforma',
+        err_404: 'Video no encontrado',
+        err_copyright: 'Video bloqueado por derechos de autor',
+        err_geo: 'Video no disponible en tu región',
+        err_timeout: 'Tiempo de espera agotado — inténtalo de nuevo',
+        err_network: 'Error de red — verifica tu conexión',
+        err_unknown: 'Error desconocido',
+        err_failed_download: 'Error al descargar el archivo',
+        err_failed_save: 'Error al guardar el archivo',
+      },
+    };
+
+    function t(key) { return translations[currentLang][key] || key; }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.querySelectorAll('.lang-pill').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+      applyTranslations();
+    }
+
+    function applyTranslations() {
+      document.getElementById('brandSubtitle').textContent = t('brand_subtitle');
+      document.getElementById('urls').placeholder = t('placeholder');
+      document.getElementById('hintText').textContent = t('hint');
+      document.getElementById('goBtn').textContent = t('fetch');
+      document.getElementById('footerText').innerHTML = t('footer');
+      document.getElementById('viewBtn').title = t('toggle_view');
+      cardData.forEach((_, i) => renderCard(i));
+    }
+
+    function toggleView() {
+      viewMode = viewMode === 'grid' ? 'list' : 'grid';
+      const cards = document.getElementById('cards');
+      cards.className = 'cards' + (viewMode === 'grid' ? ' grid' : '');
+      document.getElementById('viewBtn').textContent = viewMode === 'grid' ? '▦' : '☰';
+    }
 
     function setFormat(btn) {
       document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
@@ -428,6 +585,30 @@
       return `${m}:${sec.toString().padStart(2, '0')}`;
     }
 
+    function fmtSize(bytes) {
+      if (!bytes || bytes === 0) return '';
+      if (bytes < 1024) return bytes + 'B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KiB';
+      if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + 'MiB';
+      return (bytes / (1024 * 1024 * 1024)).toFixed(2) + 'GiB';
+    }
+
+    function fmtSpeed(bytes) {
+      if (!bytes || bytes === 0) return '';
+      if (bytes < 1024) return bytes + 'B/s';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KiB/s';
+      return (bytes / (1024 * 1024)).toFixed(1) + 'MiB/s';
+    }
+
+    function fmtEta(s) {
+      if (!s || s === '0' || s === '0.0') return '';
+      const sec = typeof s === 'string' ? parseInt(s, 10) : s;
+      if (isNaN(sec) || sec < 0) return '';
+      if (sec >= 3600) return `${Math.floor(sec / 3600)}h${Math.floor((sec % 3600) / 60)}m`;
+      if (sec >= 60) return `${Math.floor(sec / 60)}m${sec % 60}s`;
+      return `${sec}s`;
+    }
+
     function esc(s) {
       const d = document.createElement('div');
       d.textContent = s;
@@ -435,17 +616,23 @@
     }
 
     function friendlyError(err) {
-      if (err.includes('Unsupported URL')) return 'This URL is not supported';
-      if (err.includes('Video unavailable')) return 'Video is unavailable or private';
-      if (err.includes('Private video')) return 'This video is private';
-      if (err.includes('HTTP Error 403')) return 'Access denied by the platform';
-      if (err.includes('HTTP Error 404')) return 'Video not found';
-      if (err.includes('copyright')) return 'Video blocked due to copyright';
-      if (err.includes('geo')) return 'Video not available in your region';
-      if (err.includes('timed out') || err.includes('Timed out')) return 'Request timed out — try again';
-      if (err.includes('network') || err.includes('Network')) return 'Network error — check your connection';
+      if (!err) return t('err_unknown');
+      if (err.includes('No video could be found')) return t('err_no_video');
+      if (err.includes('Unsupported URL')) return t('err_unsupported');
+      if (err.includes('Video unavailable')) return t('err_unavailable');
+      if (err.includes('Private video')) return t('err_private');
+      if (err.includes('HTTP Error 403')) return t('err_403');
+      if (err.includes('HTTP Error 404')) return t('err_404');
+      if (err.includes('copyright')) return t('err_copyright');
+      if (err.includes('geo')) return t('err_geo');
+      if (err.includes('timed out') || err.includes('Timed out')) return t('err_timeout');
+      if (err.includes('network') || err.includes('Network')) return t('err_network');
       return err.length > 80 ? err.slice(0, 80) + '...' : err;
     }
+
+    applyTranslations();
+    document.getElementById('cards').className = 'cards grid';
+    document.getElementById('viewBtn').textContent = '☰';
 
     document.getElementById('urls').addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); go(); }
@@ -456,16 +643,14 @@
       if (!urls.length) return;
 
       const btn = document.getElementById('goBtn');
-      const container = document.getElementById('cards');
+      document.getElementById('urls').value = '';
       btn.disabled = true;
-      btn.textContent = 'Loading...';
-      container.innerHTML = '';
-      cardData = [];
+      btn.textContent = t('loading');
 
       for (let i = 0; i < urls.length; i++) {
         const url = urls[i];
         const idx = cardData.length;
-        cardData.push({ url, status: 'loading' });
+        cardData.push({ id: nextId++, url, status: 'loading' });
         renderCard(idx);
 
         try {
@@ -487,6 +672,8 @@
               uploader: data.uploader || '',
               formats: data.formats || [],
               selectedFormatId: data.formats?.[0]?.id || null,
+              jobId: null,
+              fileName: '',
             };
           }
         } catch (err) {
@@ -495,56 +682,62 @@
         renderCard(idx);
       }
 
-      if (cardData.filter(c => c.status === 'ready').length > 1) {
-        renderDownloadAll();
+      const totalReady = cardData.filter(c => c.status === 'ready').length;
+      if (totalReady > 1) {
+        document.getElementById('dl-all-bar')?.remove();
+        const bar = document.createElement('div');
+        bar.id = 'dl-all-bar';
+        bar.className = 'dl-all-bar';
+        bar.innerHTML = `<button class="dl-all-btn" onclick="dlAll()">${t('download_all')}</button>`;
+        document.getElementById('cards').appendChild(bar);
       }
 
       btn.disabled = false;
-      btn.textContent = 'Fetch';
+      btn.textContent = t('fetch');
     }
 
     function renderCard(idx) {
       const c = cardData[idx];
-      let el = document.getElementById(`card-${idx}`);
+      let el = document.getElementById(`card-${c.id}`);
       if (!el) {
         el = document.createElement('div');
-        el.id = `card-${idx}`;
+        el.id = `card-${c.id}`;
         el.className = 'card';
         document.getElementById('cards').appendChild(el);
       }
 
-      // Loading skeleton
       if (c.status === 'loading') {
-        el.className = 'card';
         el.innerHTML = `
-          <div class="card-thumb loading"></div>
-          <div class="card-body">
-            <div class="skeleton-line medium"></div>
-            <div class="skeleton-line short"></div>
-          </div>
-        `;
-        return;
-      }
-
-      // Error state
-      if (c.status === 'info-error') {
-        el.className = 'card card-error';
-        el.innerHTML = `
-          <div class="card-thumb">
-            <div class="card-error-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          <div class="card-header">
+            <div class="card-thumb loading"></div>
+            <div class="card-body">
+              <div class="skeleton-line medium"></div>
+              <div class="skeleton-line short"></div>
             </div>
           </div>
-          <div class="card-body">
-            <div class="card-title" style="color:var(--error)">Could not fetch video</div>
-            <div class="card-error-msg">${esc(friendlyError(c.error || ''))}</div>
-            <div class="card-error-url">${esc(c.url)}</div>
+        `;
+        return;
+      }
+
+      if (c.status === 'info-error') {
+        el.innerHTML = `
+          <div class="card-header">
+            <div class="card-thumb">
+              <div class="no-thumb" style="color:var(--error)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="card-title" style="color:var(--error)">${t('fetch_error')}</div>
+              <div class="card-error-msg">${esc(friendlyError(c.error || ''))}</div>
+              <div style="font-size:0.65rem;color:var(--muted);word-break:break-all;margin-top:4px">${esc(c.url)}</div>
+            </div>
+            <button class="card-btn outline" onclick="removeCard(${c.id})" style="align-self:flex-start;flex-shrink:0;padding:2px 8px;font-size:0.85rem" title="${t('remove_card')}">✕</button>
           </div>
         `;
         return;
       }
 
-      // Ready / downloading / done / error states
       el.className = 'card';
       const isAudio = currentFormat === 'audio';
 
@@ -560,53 +753,152 @@
       let qualityChips = '';
       if (!isAudio && c.formats && c.formats.length > 1) {
         qualityChips = c.formats.map(f =>
-          `<button class="q-chip${f.id === c.selectedFormatId ? ' active' : ''}" onclick="pickFormat(${idx}, '${f.id}')">${f.label}</button>`
+          `<button class="q-chip${f.id === c.selectedFormatId ? ' active' : ''}" data-cid="${c.id}" data-fid="${esc(f.id)}" onclick="pickFormat(this)">${esc(f.label)}</button>`
         ).join('');
       }
 
-      let actionHtml = '';
+      let actionsHtml = '';
+      let progressHtml = '';
+      let statusHtml = '';
+
       if (c.status === 'ready') {
-        actionHtml = `<button class="card-dl-btn" onclick="dlCard(${idx})">Download</button>${qualityChips}`;
-      } else if (c.status === 'downloading') {
-        actionHtml = `<span class="card-status downloading"><span class="spin"></span> Downloading...</span>`;
-      } else if (c.status === 'done') {
-        actionHtml = `<button class="card-dl-btn done" onclick="saveCard(${idx})">Save</button>
-          <span class="card-status done">${esc(c.filename || '')}</span>`;
-      } else if (c.status === 'error') {
-        actionHtml = `<button class="card-dl-btn" onclick="dlCard(${idx})">Retry</button>
-          <span class="card-status error">${esc(friendlyError(c.error || 'Download failed'))}</span>`;
+        actionsHtml = `<button class="card-btn primary" onclick="dlCard(${c.id})">${t('download')}</button>${qualityChips}`;
       }
 
+      if (c.status === 'queued') {
+        statusHtml = `<span class="card-status">${t('queued')}</span>`;
+      }
+
+      if (c.status === 'downloading') {
+        const p = c.progress || { percent: 0, downloaded: 0, total: 0, speed: 0, eta: '00:00' };
+        const pct = Math.min(p.percent, 100);
+        progressHtml = `
+          <div class="progress-wrap">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width:${pct}%"></div>
+            </div>
+            <div class="progress-info">
+              <span>${fmtSize(p.downloaded)} / ${fmtSize(p.total)}</span>
+              <span>${fmtSpeed(p.speed)}</span>
+              <span>${fmtEta(p.eta)}</span>
+            </div>
+          </div>
+        `;
+        statusHtml = `<span class="card-status downloading"><span class="spin"></span> ${t('downloading')}</span>`;
+        actionsHtml = `
+          <button class="card-btn warning" onclick="jobAction(${c.id}, 'pause')">${t('pause')}</button>
+          <button class="card-btn danger" onclick="jobAction(${c.id}, 'cancel')">${t('cancel')}</button>
+        `;
+      }
+
+      if (c.status === 'paused') {
+        const p = c.progress || { percent: 0, downloaded: 0, total: 0 };
+        const pct = Math.min(p.percent, 100);
+        progressHtml = `
+          <div class="progress-wrap">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill paused" style="width:${pct}%"></div>
+            </div>
+            <div class="progress-info">
+              <span>${fmtSize(p.downloaded)} / ${fmtSize(p.total)}</span>
+              <span>${pct}%</span>
+            </div>
+          </div>
+        `;
+        statusHtml = `<span class="card-status paused">${t('paused')}</span>`;
+        actionsHtml = `
+          <button class="card-btn primary" onclick="jobAction(${c.id}, 'resume')">${t('resume')}</button>
+          <button class="card-btn danger" onclick="jobAction(${c.id}, 'cancel')">${t('cancel')}</button>
+        `;
+      }
+
+      if (c.status === 'cancelled') {
+        statusHtml = `<span class="card-status cancelled">${t('cancelled')}</span>`;
+        actionsHtml = `<button class="card-btn primary" onclick="jobAction(${c.id}, 'restart')">${t('restart')}</button>`;
+      }
+
+      if (c.status === 'done') {
+        progressHtml = `
+          <div class="progress-wrap">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill done" style="width:100%"></div>
+            </div>
+            <div class="progress-info">
+              <span>${c.file_size ? fmtSize(c.file_size) : ''}</span>
+              <span>100%</span>
+            </div>
+          </div>
+        `;
+        if (c.fileHandle) {
+          statusHtml = `<span class="card-status done">${t('download_finished')}</span>`;
+          actionsHtml = '';
+        } else {
+          statusHtml = `<span class="card-status done">${t('complete')}</span>`;
+          actionsHtml = `
+            <button class="card-btn success" onclick="saveCard(${c.id})">${t('save')}</button>
+            <button class="card-btn outline" onclick="jobAction(${c.id}, 'restart')">${t('restart')}</button>
+          `;
+        }
+      }
+
+      if (c.status === 'error') {
+        statusHtml = `<span class="card-status error">${esc(friendlyError(c.error || t('err_unknown')))}</span>`;
+        actionsHtml = `<button class="card-btn primary" onclick="jobAction(${c.id}, 'restart')">${t('retry')}</button>`;
+      }
+
+      const statusMsg = c.statusMessage ? `<div class="card-status-msg">${esc(c.statusMessage)}</div>` : '';
+
       el.innerHTML = `
-        <div class="card-thumb">${thumbHtml}</div>
-        <div class="card-body">
-          <div class="card-title">${esc(c.title || 'Untitled')}</div>
-          <div class="card-meta">${esc(c.uploader)}${c.duration ? ' · ' + fmtDur(c.duration) : ''}</div>
-          <div class="card-actions">${actionHtml}</div>
+        <div class="card-header">
+          <div class="card-thumb">${thumbHtml}</div>
+          <div class="card-body">
+            <div class="card-title">${esc(c.title || t('untitled'))}</div>
+            <div class="card-meta">${esc(c.uploader)}${c.duration ? ' · ' + fmtDur(c.duration) : ''}</div>
+          </div>
+          <button class="card-btn outline" onclick="removeCard(${c.id})" style="align-self:flex-start;flex-shrink:0;padding:2px 8px;font-size:0.85rem" title="${t('remove_card')}">✕</button>
         </div>
+        <div class="card-actions">${statusHtml} ${actionsHtml}</div>
+        ${progressHtml}
+        ${statusMsg}
       `;
     }
 
-    function renderDownloadAll() {
-      const existing = document.getElementById('dl-all-bar');
-      if (existing) existing.remove();
-
-      const bar = document.createElement('div');
-      bar.id = 'dl-all-bar';
-      bar.className = 'dl-all-bar';
-      bar.innerHTML = `<button class="dl-all-btn" onclick="dlAll()">Download All</button>`;
-      document.getElementById('cards').appendChild(bar);
-    }
-
-    function pickFormat(idx, formatId) {
+    function pickFormat(btn) {
+      const id = parseInt(btn.dataset.cid, 10);
+      const formatId = btn.dataset.fid;
+      const idx = findCardIdx(id);
+      if (idx === -1) return;
       cardData[idx].selectedFormatId = formatId;
       renderCard(idx);
     }
 
-    async function dlCard(idx) {
+    async function dlCard(id) {
+      const idx = findCardIdx(id);
+      if (idx === -1) return;
       const c = cardData[idx];
-      c.status = 'downloading';
+
+      const isAudio = currentFormat === 'audio';
+      const ext = isAudio ? '.mp3' : '.mp4';
+      const suggestedName = (c.title || 'video').replace(/[\\/:*?"<>|]/g, '_').slice(0, 80) + ext;
+
+      let fileHandle;
+      try {
+        fileHandle = await window.showSaveFilePicker({
+          suggestedName,
+          types: [{
+            description: isAudio ? 'Audio File' : 'Video File',
+            accept: isAudio ? { 'audio/mpeg': ['.mp3'] } : { 'video/mp4': ['.mp4'] },
+          }],
+        });
+      } catch (err) {
+        if (err.name === 'AbortError' || err.name === 'SecurityError') return;
+        fallbackDownload(idx);
+        return;
+      }
+
+      c.status = 'queued';
       c.error = null;
+      c.fileHandle = fileHandle;
       renderCard(idx);
 
       try {
@@ -614,10 +906,10 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            url: c.url,
+            urls: [c.url],
             format: currentFormat,
-            format_id: c.selectedFormatId,
-            title: c.title || '',
+            format_ids: { [c.url]: c.selectedFormatId },
+            titles: { [c.url]: c.title || '' },
           }),
         });
         const data = await res.json();
@@ -627,43 +919,195 @@
           renderCard(idx);
           return;
         }
-        c.jobId = data.job_id;
-        pollCard(idx);
+        if (data.jobs && data.jobs[0]) {
+          c.jobId = data.jobs[0].job_id;
+          c.status = 'downloading';
+          c.progress = { percent: 0, downloaded: 0, total: 0, speed: 0, eta: '00:00' };
+          renderCard(idx);
+          startPolling(c.id);
+        }
       } catch (err) {
         c.status = 'error';
         c.error = err.message;
+        if (findCardIdx(c.id) !== -1) renderCard(findCardIdx(c.id));
+      }
+    }
+
+    async function fallbackDownload(id) {
+      const idx = findCardIdx(id);
+      if (idx === -1) return;
+      const c = cardData[idx];
+      c.status = 'queued';
+      c.error = null;
+      renderCard(idx);
+
+      try {
+        const res = await fetch('/api/download', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            urls: [c.url],
+            format: currentFormat,
+            format_ids: { [c.url]: c.selectedFormatId },
+            titles: { [c.url]: c.title || '' },
+          }),
+        });
+        const data = await res.json();
+        if (data.error) {
+          c.status = 'error';
+          c.error = data.error;
+          renderCard(idx);
+          return;
+        }
+        if (data.jobs && data.jobs[0]) {
+          c.jobId = data.jobs[0].job_id;
+          c.status = 'downloading';
+          c.progress = { percent: 0, downloaded: 0, total: 0, speed: 0, eta: '00:00' };
+          renderCard(idx);
+          startPolling(c.id);
+        }
+      } catch (err) {
+        c.status = 'error';
+        c.error = err.message;
+        if (findCardIdx(c.id) !== -1) renderCard(findCardIdx(c.id));
+      }
+    }
+
+    function startPolling(id) {
+      const idx = findCardIdx(id);
+      if (idx === -1) return;
+      const c = cardData[idx];
+      if (pollTimers[c.id]) clearInterval(pollTimers[c.id]);
+
+      pollTimers[c.id] = setInterval(async () => {
+        const i = findCardIdx(id);
+        if (i === -1) { clearInterval(pollTimers[id]); delete pollTimers[id]; return; }
+        const job = cardData[i];
+        if (!job || !job.jobId) {
+          clearInterval(pollTimers[id]);
+          delete pollTimers[id];
+          return;
+        }
+        try {
+          const res = await fetch(`/api/status/${job.jobId}`);
+          const data = await res.json();
+
+          if (data.status === 'downloading' || data.status === 'paused') {
+            if (data.progress) job.progress = data.progress;
+            job.status = data.status;
+          } else if (data.status === 'done') {
+            clearInterval(pollTimers[job.id]);
+            delete pollTimers[job.id];
+            job.status = 'done';
+            job.filename = data.filename;
+            job.file_size = data.file_size;
+            streamToFile(job.id);
+          } else if (data.status === 'error') {
+            clearInterval(pollTimers[job.id]);
+            delete pollTimers[job.id];
+            job.status = 'error';
+            job.error = data.error;
+          } else if (data.status === 'cancelled') {
+            clearInterval(pollTimers[job.id]);
+            delete pollTimers[job.id];
+            job.status = 'cancelled';
+          }
+          if (findCardIdx(job.id) !== -1) renderCard(findCardIdx(job.id));
+        } catch (err) {
+          // ignore polling errors
+        }
+      }, 800);
+    }
+
+    async function streamToFile(id) {
+      const idx = findCardIdx(id);
+      if (idx === -1) return;
+      const c = cardData[idx];
+      if (!c.fileHandle || !c.jobId) return;
+
+      try {
+        const res = await fetch(`/api/file/${c.jobId}`);
+        if (!res.ok) {
+          c.status = 'error';
+          c.error = t('err_failed_download');
+          renderCard(idx);
+          return;
+        }
+
+        const writable = await c.fileHandle.createWritable();
+        const reader = res.body.getReader();
+        const writer = writable.getWriter();
+
+        const pump = () => {
+          return reader.read().then(({ done, value }) => {
+            if (done) return writer.close();
+            return writer.write(value).then(pump);
+          });
+        };
+
+        await pump();
+        c.statusMessage = t('download_finished');
+        renderCard(idx);
+      } catch (err) {
+        c.status = 'error';
+        c.error = t('err_failed_save') + ': ' + err.message;
         renderCard(idx);
       }
     }
 
-    function pollCard(idx) {
+    async function jobAction(id, action) {
+      const idx = findCardIdx(id);
+      if (idx === -1) return;
       const c = cardData[idx];
-      const iv = setInterval(async () => {
-        try {
-          const res = await fetch(`/api/status/${c.jobId}`);
-          const data = await res.json();
-          if (data.status === 'done') {
-            clearInterval(iv);
-            c.status = 'done';
-            c.filename = data.filename;
-            renderCard(idx);
-            saveCard(idx);
-          } else if (data.status === 'error') {
-            clearInterval(iv);
-            c.status = 'error';
-            c.error = data.error;
-            renderCard(idx);
-          }
-        } catch {
-          clearInterval(iv);
-          c.status = 'error';
-          c.error = 'Lost connection to server';
-          renderCard(idx);
+      if (!c.jobId) return;
+
+      try {
+        const res = await fetch(`/api/action/${c.jobId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action }),
+        });
+        const data = await res.json();
+        if (data.error) {
+          console.error('Action error:', data.error);
+          return;
         }
-      }, 1000);
+        const i = findCardIdx(id);
+        if (i === -1) return;
+        if (action === 'pause') {
+          c.status = 'paused';
+          if (pollTimers[c.id]) {
+            clearInterval(pollTimers[c.id]);
+            delete pollTimers[c.id];
+          }
+          renderCard(i);
+        } else if (action === 'cancel') {
+          c.status = 'cancelled';
+          if (pollTimers[c.id]) {
+            clearInterval(pollTimers[c.id]);
+            delete pollTimers[c.id];
+          }
+          renderCard(i);
+        } else if (action === 'resume') {
+          c.status = 'downloading';
+          renderCard(i);
+          startPolling(c.id);
+        } else if (action === 'restart') {
+          c.status = 'queued';
+          c.progress = { percent: 0, downloaded: 0, total: 0, speed: 0, eta: '00:00' };
+          c.error = null;
+          c.fileHandle = null;
+          renderCard(i);
+          dlCard(c.id);
+        }
+      } catch (err) {
+        console.error('Action error:', err);
+      }
     }
 
-    function saveCard(idx) {
+    function saveCard(id) {
+      const idx = findCardIdx(id);
+      if (idx === -1) return;
       const c = cardData[idx];
       if (!c.jobId) return;
       const a = document.createElement('a');
@@ -672,17 +1116,44 @@
       a.click();
     }
 
-    async function dlAll() {
-      const btn = document.querySelector('.dl-all-btn');
-      if (btn) { btn.disabled = true; btn.textContent = 'Downloading...'; }
+    function findCardIdx(id) {
+      return cardData.findIndex(x => x.id === id);
+    }
 
-      for (let i = 0; i < cardData.length; i++) {
-        if (cardData[i].status === 'ready') {
-          await dlCard(i);
+    function removeCard(id) {
+      const idx = findCardIdx(id);
+      if (idx === -1) return;
+      const c = cardData[idx];
+      if (c.status === 'downloading' || c.status === 'queued' || c.status === 'paused') {
+        if (c.jobId) {
+          fetch(`/api/action/${c.jobId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'cancel' }),
+          }).catch(() => {});
         }
       }
+      if (pollTimers[id]) {
+        clearInterval(pollTimers[id]);
+        delete pollTimers[id];
+      }
+      document.getElementById(`card-${id}`)?.remove();
+      cardData.splice(idx, 1);
+      const dlBar = document.getElementById('dl-all-bar');
+      if (cardData.filter(x => x.status === 'ready').length <= 1) dlBar?.remove();
+    }
 
-      if (btn) { btn.disabled = false; btn.textContent = 'Download All'; }
+    async function dlAll() {
+      const btn = document.querySelector('.dl-all-btn');
+      if (btn) { btn.disabled = true; btn.textContent = t('starting'); }
+
+      const ready = cardData.filter(c => c.status === 'ready');
+      for (const c of ready) {
+        fallbackDownload(c.id);
+        await new Promise(r => setTimeout(r, 300));
+      }
+
+      if (btn) { btn.disabled = false; btn.textContent = t('download_all'); }
     }
   </script>
 </body>

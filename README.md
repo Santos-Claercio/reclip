@@ -1,13 +1,9 @@
-# ReClip
+# ReClip Master
 
 A self-hosted, open-source video and audio downloader with a clean web UI. Paste links from YouTube, TikTok, Instagram, Twitter/X, and 1000+ other sites — download as MP4 or MP3.
 
 ![Python](https://img.shields.io/badge/python-3.8+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-
-https://github.com/user-attachments/assets/419d3e50-c933-444b-8cab-a9724986ba05
-
-![ReClip MP3 Mode](assets/preview-mp3.png)
 
 ## Features
 
@@ -16,8 +12,10 @@ https://github.com/user-attachments/assets/419d3e50-c933-444b-8cab-a9724986ba05
 - Quality/resolution picker
 - Bulk downloads — paste multiple URLs at once
 - Automatic URL deduplication
+- Grid/List view toggle
+- Multi-language UI (PT-BR, EN, ES)
 - Clean, responsive UI — no frameworks, no build step
-- Single Python file backend (~150 lines)
+- Single Python file backend
 
 ## Quick Start
 
@@ -52,10 +50,19 @@ YouTube, TikTok, Instagram, Twitter/X, Reddit, Facebook, Vimeo, Twitch, Dailymot
 
 ## Stack
 
-- **Backend:** Python + Flask (~150 lines)
+- **Backend:** Python + Flask
 - **Frontend:** Vanilla HTML/CSS/JS (single file, no build step)
 - **Download engine:** [yt-dlp](https://github.com/yt-dlp/yt-dlp) + [ffmpeg](https://ffmpeg.org/)
 - **Dependencies:** 2 (Flask, yt-dlp)
+
+## Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `PORT` | `8899` | Server port |
+| `HOST` | `127.0.0.1` | Bind address (`0.0.0.0` for Docker) |
+| `FLASK_DEBUG` | `0` | Enable Flask debug mode (`1`) |
+| `SECRET_KEY` | auto | Flask secret key |
 
 ## Disclaimer
 

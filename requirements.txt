@@ -1,2 +1,2 @@
-flask
-yt-dlp
+flask>=3.0
+yt-dlp>=2024
